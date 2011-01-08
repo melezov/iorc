@@ -1,7 +1,8 @@
+
 package scala.collection
 package generic
 
-trait Retaining[K, +This] {
+trait Retaining[K, +This <: Retaining[K, This]] {
 
   /** The current collection */
   protected def repr: This

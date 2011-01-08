@@ -1,16 +1,17 @@
 package scala.collection
 package immutable
 
-import scala.collection.generic._
+import generic._
+import mutable.Builder
 
-trait RetSet[A] extends Iterable[A]
-                with scala.collection.RetSet[A]
-                with GenericSetTemplate[A, RetSet]
-                with RetSetLike[A, RetSet[A]] {
+trait RetSet[A] extends Set[A]
+                   with scala.collection.RetSet[A]
+                   with RetSetLike[A, RetSet[A]] {
+  override def empty: RetSet[A] = RetSet.empty[A]
   override def companion: GenericCompanion[RetSet] = RetSet
 }
 
-object RetSet extends ImmutableRetSetFactory[RetSet]{
+object RetSet extends ImmutableRetSetFactory[RetSet] {
   implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, RetSet[A]] = retSetCanBuildFrom[A]
   override def empty[A]: RetSet[A] = EmptyRetSet.asInstanceOf[RetSet[A]]
 
