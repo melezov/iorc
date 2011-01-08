@@ -10,7 +10,7 @@ trait RetSet[A] extends Iterable[A]
   override def companion: GenericCompanion[RetSet] = RetSet
 }
 
-object RetSet extends ImmutableRetSetFactory[RetSet] {
+object RetSet extends ImmutableRetSetFactory[RetSet]{
   implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, RetSet[A]] = retSetCanBuildFrom[A]
   override def empty[A]: RetSet[A] = EmptyRetSet.asInstanceOf[RetSet[A]]
 

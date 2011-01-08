@@ -7,6 +7,6 @@ trait RetSet[A] extends Set[A] with RetSetLike[A, SortedSet[A]] {
 
 object RetSet extends RetSetFactory[RetSet] {
   def empty[A]: immutable.RetSet[A] = immutable.RetSet.empty[A]
-  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, RetSet[A]] = new RetSetCanBuildFrom[A]
+  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, RetSet[A]] = retSetCanBuildFrom[A]
 }
 
