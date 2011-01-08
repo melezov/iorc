@@ -1,6 +1,17 @@
 package scala.collection
 package mutable
 
+import immutable.BreeSet
+
+object Test{
+  def main( args: Array[String] ) {
+    val a = new BreeSet[Int]() ++ List( 7,9,0,6,5)
+
+    println( a )
+  }
+}
+
+/*
 import generic._
 
 object DoubleLinkedHashSet extends MutableSetFactory[DoubleLinkedHashSet] {
@@ -347,4 +358,6 @@ object Test{
   d: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(50, 60, 3)
   e: class scala.collection.mutable.HashSet: Set(1, 50, 60, 2)
   f: class scala.collection.mutable.HashSet: Set(71, 3, 61, 51, 4, 2)
+*/
+
 */
