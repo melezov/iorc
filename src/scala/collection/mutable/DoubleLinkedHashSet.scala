@@ -8,11 +8,10 @@ object DoubleLinkedHashSet extends MutableSetFactory[DoubleLinkedHashSet] {
   override def empty[A]: DoubleLinkedHashSet[A] = new DoubleLinkedHashSet[A]
 }
 
-final class DoubleLinkedEntry[A](
-    val key: A,
-    var older: DoubleLinkedEntry[A] = null,
-    var younger: DoubleLinkedEntry[A] = null
-    ) extends HashEntry[A, DoubleLinkedEntry[A]]{
+final class DoubleLinkedEntry[A]( val key: A ) extends HashEntry[A, DoubleLinkedEntry[A]]{
+
+  var older: DoubleLinkedEntry[A] = null
+  var younger: DoubleLinkedEntry[A] = null
 
   override def toString = key + "@(" +
     (if ( older eq null ) null else older.key) + ":" +
@@ -39,9 +38,10 @@ class DoubleLinkedHashSet[A] extends Set[A]
   /** alias for addYoungest */
   override def add(elem:A): Boolean = addYoungest(elem)
 
-  private def linkYoungest(elem: A): Entry = {
-    // new element will always be youngest
-    val yE = new Entry( elem, youngest )
+  private def linkYoungest(yE: Entry): Entry = {
+    // new element will always be youngest, so link accordingly
+    yE.older = youngest
+    yE.younger = null
 
     // if oldest is null then this is our first element
     if ( oldest eq null ){
@@ -63,7 +63,7 @@ class DoubleLinkedHashSet[A] extends Set[A]
   def addYoungest(elem: A): Boolean = {
     val oE = findEntry(elem)
     if (oE eq null) {
-      addEntry( linkYoungest( elem ) )
+      addEntry( linkYoungest( new Entry( elem ) ) )
       true
     }
     else false
@@ -79,7 +79,7 @@ class DoubleLinkedHashSet[A] extends Set[A]
     val yE = findEntry(elem)
     if (yE ne null) {
       removeLinks( yE )
-      linkYoungest( yE.key )
+      linkYoungest( yE )
       false
     }
     else{
@@ -88,9 +88,10 @@ class DoubleLinkedHashSet[A] extends Set[A]
     }
   }
 
-  private def linkOldest(elem: A): Entry = {
-    // the new element will be injected as the oldest one
-    val oE = new Entry( elem, null, oldest )
+  private def linkOldest(oE: Entry): Entry = {
+    // the new element will be injected as the oldest one, so link accordingly
+    oE.older = null
+    oE.younger = oldest
 
     // if youngest is null then this is our first element
     if ( youngest eq null ){
@@ -112,7 +113,7 @@ class DoubleLinkedHashSet[A] extends Set[A]
   def addOldest(elem: A): Boolean = {
     val oE = findEntry(elem)
     if (oE eq null) {
-      addEntry( linkOldest( elem ) )
+      addEntry( linkOldest( new Entry( elem ) ) )
       true
     }
     else false
@@ -129,7 +130,7 @@ class DoubleLinkedHashSet[A] extends Set[A]
     val oE = findEntry(elem)
     if (oE ne null) {
       removeLinks( oE )
-      linkOldest( oE.key )
+      linkOldest( oE )
       false
     }
     else{
@@ -175,17 +176,17 @@ class DoubleLinkedHashSet[A] extends Set[A]
     else false
   }
 
-  def += (elem: A): this.type = {
+  override def += (elem: A): this.type = {
     addYoungest(elem)
     this
   }
 
-  def -= (elem: A): this.type = {
+  override def -= (elem: A): this.type = {
     remove(elem)
     this
   }
 
-  def contains(elem: A): Boolean = {
+  override def contains(elem: A): Boolean = {
     findEntry(elem) ne null
   }
 
@@ -201,11 +202,24 @@ class DoubleLinkedHashSet[A] extends Set[A]
    *  non-deterministic behavior due to mutability of all underlying
    *  structures.
    */
-  def iterator = new Iterator[A]{
+  override def iterator = new Iterator[A]{
     var cur = oldest
     def next = {
       val key = cur.key
       cur = cur.younger
+      key
+    }
+    def hasNext = cur ne null
+  }
+
+  /** Needs to be retro-fitted to a trait which will provide
+   *  reverse capabilities.
+   */
+  def reverseIterator = new Iterator[A] {
+    var cur = youngest
+    def next = {
+      val key = cur.key
+      cur = cur.older
       key
     }
     def hasNext = cur ne null
@@ -219,16 +233,29 @@ class DoubleLinkedHashSet[A] extends Set[A]
     }
   }
 
+  /** Needs to be retro-fitted to a trait which will provide
+   *  reverse capabilities.
+   */
+  def foreachReverse[U](f: A =>  U) {
+    var cur = youngest
+    while ( cur ne null ){
+      f(cur.key)
+      cur = cur.older
+    }
+  }
+
   override def clone() = new DoubleLinkedHashSet[A]() ++= this
 
 // ################ SERIALIZATION ################
 
   /** Serialization is performed by writing down the older
-   *  and younger keys surrounding each element. This could be
+   *  and younger elements surrounding each element. This could be
    *  optimized by for instance, writing only one of them and
    *  rebuilding the structure in reverse for the other element,
    *  thus saving more than half of the added serialization
-   *  overhead. Will be changed in the future.
+   *  overhead. Another option would be to completely abandon
+   *  HashTable's serializeTo and just serialize the collection
+   *  as an ordinary LinkedList.
    */
   private def writeObject(out: java.io.ObjectOutputStream) {
     serializeTo( out, v => (
@@ -277,13 +304,15 @@ class DoubleLinkedHashSet[A] extends Set[A]
 object Test{
   def main( args: Array[String] ) {
 
-    val a = DoubleLinkedHashSet.empty ++ List(50,2,60,3)
+    val a = DoubleLinkedHashSet.empty ++ List(50,4,60,3)
 
     a.addYoungest( 99 )
     a.addYoungest( 98 )
     a.forceYoungest( 99 )
 
     a.addOldest( 1 )
+    a.addOldest( 2 )
+    a.forceOldest( 1 )
 
     println( "a: " + a.getClass + ": " + a )
 
@@ -298,11 +327,12 @@ object Test{
     val bAIS = new java.io.ByteArrayInputStream( bAOS.toByteArray )
     val oIS = new java.io.ObjectInputStream( bAIS )
     val c = oIS.readObject.asInstanceOf[DoubleLinkedHashSet[Int]]
+
     val d = c.clone --= List(1,2,99)
     println( "c: " + c.getClass + ": " + c ) // serialization ok
     println( "d: " + c.getClass + ": " + d ) // clone ok (must differ from c)
 
-    val e = a.clone.view.take(4).force // fail - returns HashSet instead of DoubleLinkedHashSet
+    val e = a.view.take(4).force // fail - returns HashSet instead of DoubleLinkedHashSet
     println( "e: " + e.getClass + ": " + e )
 
     val f = a.map( _+1 ) // fail - returns HashSet instead of DoubleLinkedHashSet
