@@ -3,12 +3,12 @@ package generic
 
 import mutable.{Builder, SetBuilder}
 
-abstract class RetSetFactory[CC[A] <: RetSet[A] with RetSetLike[A, CC[A]]] {
-  type Coll = CC[_]
+abstract class RetSetFactory[CC[A] <: RetSet[A] with RetSetLike[A, CC[A]]] extends GenericCompanion[CC]{
+  override type Coll = CC[_]
 
-  def empty[A]: CC[A]
+  override def empty[A]: CC[A]
 
-  def apply[A](elems: A*): CC[A] = (newBuilder[A] ++= elems).result
+  override def apply[A](elems: A*): CC[A] = (newBuilder[A] ++= elems).result
 
   def newBuilder[A]: Builder[A, CC[A]] = new SetBuilder[A, CC[A]](empty)
 

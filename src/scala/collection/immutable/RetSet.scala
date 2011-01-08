@@ -89,7 +89,7 @@ object RetSet extends ImmutableRetSetFactory[RetSet] {
       elem == elem1 || elem == elem2 || elem == elem3 || elem == elem4
     def + (elem: A): RetSet[A] =
       if (contains(elem)) this
-      else null//new RetSet[A] + (elem1, elem2, elem3, elem4, elem)
+      else VectorHashSet[A]( Vector(elem1, elem2, elem3, elem4, elem) )
     def - (elem: A): RetSet[A] =
       if (elem == elem1) new RetSet3(elem2, elem3, elem4)
       else if (elem == elem2) new RetSet3(elem1, elem3, elem4)

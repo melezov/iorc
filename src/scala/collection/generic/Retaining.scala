@@ -2,17 +2,14 @@
 package scala.collection
 package generic
 
-trait Retaining[K, +This <: Retaining[K, This]] {
-
-  /** The current collection */
-  protected def repr: This
+trait Retaining[A] {
 
   /** return as a projection the set of keys in this collection */
-  def keySet: RetSet[K]
+  def keySet: RetSet[A]
 
-  /** Returns the first key of the collection. */
-  def firstKey: K
+  /** Returns the newest inserted key of the collection. */
+  def youngestKey: A
 
-  /** Returns the last key of the collection. */
-  def lastKey: K
+  /** Returns the oldest inserted key of the collection. */
+  def oldestKey: A
 }

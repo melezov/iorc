@@ -6,6 +6,6 @@ trait RetSet[A] extends Set[A] with RetSetLike[A, RetSet[A]] {
 }
 
 object RetSet extends RetSetFactory[RetSet] {
-  def empty[A]: immutable.RetSet[A] = immutable.RetSet.empty[A]
+  override def empty[A]: immutable.RetSet[A] = immutable.RetSet.empty[A]
   implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, RetSet[A]] = retSetCanBuildFrom[A]
 }
