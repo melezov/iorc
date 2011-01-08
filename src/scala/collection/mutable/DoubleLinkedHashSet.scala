@@ -8,10 +8,13 @@ object DoubleLinkedHashSet extends MutableSetFactory[DoubleLinkedHashSet] {
   override def empty[A]: DoubleLinkedHashSet[A] = new DoubleLinkedHashSet[A]
 }
 
+@serializable @SerialVersionUID(1L)
 final class DoubleLinkedEntry[A]( val key: A,
-    var younger: DoubleLinkedEntry[A],
-    var older: DoubleLinkedEntry[A] ) extends HashEntry[A, DoubleLinkedEntry[A]]
+    var older: DoubleLinkedEntry[A],
+    var younger: DoubleLinkedEntry[A] ) extends HashEntry[A, DoubleLinkedEntry[A]]
 
+
+@serializable @SerialVersionUID(1L)
 class DoubleLinkedHashSet[A] extends Set[A]
                              with GenericSetTemplate[A, DoubleLinkedHashSet]
                              with SetLike[A, DoubleLinkedHashSet[A]]
@@ -24,10 +27,10 @@ class DoubleLinkedHashSet[A] extends Set[A]
   override def stringPrefix = "RetSet"
   override def size = tableSize
 
-  override def add(elem: A): Boolean = {
+  override def add(elem:A): Boolean = {
     val oE = findEntry(elem)
     if (oE eq null) {
-      val nE = new Entry( elem, null, youngest )
+      val nE = new Entry( elem, youngest, null )
 
       if ( oldest eq null ){
         oldest = nE
@@ -96,34 +99,56 @@ class DoubleLinkedHashSet[A] extends Set[A]
     }
     def hasNext = cur ne null
   }
+
+  override def foreach[U](f: A =>  U) {
+    var cur = oldest
+    while ( cur ne null ){
+      f(cur.key)
+      cur = cur.younger
+    }
+  }
+
+  override def clone() = new DoubleLinkedHashSet[A] ++= this
+
+  private def writeObject(out: java.io.ObjectOutputStream) {
+    serializeTo( out, { v => (v.younger, v.older) } )
+  }
+
+  private def readObject(in: java.io.ObjectInputStream) {
+    init[(Entry,Entry)](in, { (k,v) => new Entry(k, v._1, v._2) } )
+  }
 }
 
 object Test{
   def main( args: Array[String] ) {
 
     val a = DoubleLinkedHashSet.empty ++ List(1,50,2,60,3,70)
-    println( a.getClass + ": " + a )
+    println( "a: " + a.getClass + ": " + a )
 
     val b = a.take(5).filter(_<10)
-    println( b.getClass + ": " + b ) // ok
+    println( "b: " + b.getClass + ": " + b ) // ok
 
-    val c = a.view.take(4).force // fail
-    println( c.getClass + ": " + c )
+    val bAOS = new java.io.ByteArrayOutputStream()
+    val oOS = new java.io.ObjectOutputStream( bAOS )
+    oOS.writeObject( a )
+    oOS.close
+    val bAIS = new java.io.ByteArrayInputStream( bAOS.toByteArray )
+    val oIS = new java.io.ObjectInputStream( bAIS )
+    val c = oIS.readObject.asInstanceOf[DoubleLinkedHashSet[Int]]
+    println( "c: " + c.getClass + "c: " + c ) // ok
 
-    val d = a.map(_+1) // fail
-    println( d.getClass + ": " + d )
+    val d = a.view.take(4).force // fail
+    println( "d: " + d.getClass + ": " + d )
 
-    val e = a.groupBy(identity) // fail
-    println( e.getClass + ": " + e )
-
-    val f = a.map(_*23) // fail
-    println( f.getClass + ": " + f )
+    val e = a.map(_+1) // fail
+    println( "e: " + e.getClass + ": " + e )
   }
 }
 
 /*
-  class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 50, 2, 60, 3, 70)
-  class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2, 3)
-  class scala.collection.mutable.HashSet: Set(1, 50, 60, 2)
-  class scala.collection.mutable.HashSet: Set(71, 3, 61, 51, 4, 2)
+a: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 50, 2, 60, 3, 70)
+b: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2, 3)
+c: class scala.collection.mutable.DoubleLinkedHashSetc: RetSet(1, 50, 2, 60, 3, 70)
+d: class scala.collection.mutable.HashSet: Set(1, 50, 60, 2)
+e: class scala.collection.mutable.HashSet: Set(71, 3, 61, 51, 4, 2)
 */
