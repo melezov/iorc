@@ -1,3 +1,4 @@
+/*
 package scala.collection
 package immutable
 
@@ -103,3 +104,4 @@ object RetSet extends ImmutableRetSetFactory[RetSet] {
     }
   }
 }
+*/

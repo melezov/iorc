@@ -1,4 +1,4 @@
-
+/*
 package scala.collection
 package generic
 
@@ -13,3 +13,4 @@ trait Retaining[A] {
   /** Returns the oldest inserted key of the collection. */
   def oldestKey: A
 }
+*/

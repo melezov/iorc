@@ -1,3 +1,4 @@
+/*
 package scala.collection
 import generic._
 
@@ -10,3 +11,4 @@ self =>
   override def oldestKey: A = last
 
 }
+*/

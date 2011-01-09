@@ -1,3 +1,4 @@
+/*
 package scala.collection
 import generic._
 
@@ -9,3 +10,4 @@ object RetSet extends RetSetFactory[RetSet] {
   override def empty[A]: immutable.RetSet[A] = immutable.RetSet.empty[A]
   implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, RetSet[A]] = retSetCanBuildFrom[A]
 }
+*/

@@ -9,13 +9,8 @@ object DoubleLinkedHashSet extends MutableSetFactory[DoubleLinkedHashSet] {
 }
 
 final class DoubleLinkedEntry[A]( val key: A ) extends HashEntry[A, DoubleLinkedEntry[A]]{
-
   var older: DoubleLinkedEntry[A] = null
   var younger: DoubleLinkedEntry[A] = null
-
-  override def toString = key + "@(" +
-    (if ( older eq null ) null else older.key) + ":" +
-    (if ( younger eq null ) null else younger.key) + ")"
 }
 
 
@@ -248,103 +243,32 @@ class DoubleLinkedHashSet[A] extends Set[A]
 
 // ################ SERIALIZATION ################
 
-  /** Serialization is performed by writing down the older
-   *  and younger elements surrounding each element. This could be
-   *  optimized by for instance, writing only one of them and
-   *  rebuilding the structure in reverse for the other element,
-   *  thus saving more than half of the added serialization
-   *  overhead. Another option would be to completely abandon
-   *  HashTable's serializeTo and just serialize the collection
-   *  as an ordinary LinkedList.
+  /** Serialization is performed by writing down the set size, proceeded by
+   *  elements from oldest to youngest.
    */
   private def writeObject(out: java.io.ObjectOutputStream) {
-    serializeTo( out, v => (
-      if ( v.older eq null ) null else v.older.key,
-      if ( v.younger eq null ) null else v.younger.key
-    ) )
+    out.defaultWriteObject
+    out.writeInt( size )
+    foreach{ out.writeObject }
   }
 
+  /** We unserialize into a temporary DoubleLinkedHashSet, and copy from there.
+   *  This could be optimized to prevent constant resizing of the underlying
+   *  HashTable.
+   */
   private def readObject(in: java.io.ObjectInputStream) {
+    in.defaultReadObject
+    val size = in.readInt
 
-    // temporary Map for initializing Entry links
-    val tmp = new LinkedHashMap[Entry,(A,A)]()
+    val bld = new DoubleLinkedHashSet[A]()
+    for ( i <- 1 to size ) bld += in.readObject.asInstanceOf[A]
 
-    // first, instantiate all Entry elements with empty links
-    init[(A,A)](in, { (k,v) =>
-      val nE = new Entry( k )
-      tmp(nE) = v
-      nE
-    })
+    youngest = bld.youngest
+    oldest = bld.oldest
 
-    // now link up the Entry elements
-    tmp.foreach{ kv =>
-      val entry = kv._1
-      val older = kv._2._1
-      val younger = kv._2._2
-
-      if ( older != null ){
-        entry.older = findEntry(older)
-      }
-      else {
-        // if no older, set the root element link
-        oldest = entry
-      }
-
-      if ( younger != null ){
-        entry.younger = findEntry(younger)
-      }
-      else {
-        // if no younger, set the root element link
-        youngest = entry
-      }
-    }
+    _loadFactor = bld._loadFactor
+    tableSize = bld.tableSize
+    threshold = bld.threshold
+    table = bld.table
   }
 }
-
-object Test{
-  def main( args: Array[String] ) {
-
-    val a = DoubleLinkedHashSet.empty ++ List(50,4,60,3)
-
-    a.addYoungest( 99 )
-    a.addYoungest( 98 )
-    a.forceYoungest( 99 )
-
-    a.addOldest( 1 )
-    a.addOldest( 2 )
-    a.forceOldest( 1 )
-
-    println( "a: " + a.getClass + ": " + a )
-
-    val b = a.take(3).filter(_<10)
-    println( "b: " + b.getClass + ": " + b ) // type ok
-
-    val bAOS = new java.io.ByteArrayOutputStream()
-    val oOS = new java.io.ObjectOutputStream( bAOS )
-    oOS.writeObject( a )
-    oOS.close
-
-    val bAIS = new java.io.ByteArrayInputStream( bAOS.toByteArray )
-    val oIS = new java.io.ObjectInputStream( bAIS )
-    val c = oIS.readObject.asInstanceOf[DoubleLinkedHashSet[Int]]
-
-    val d = c.clone --= List(1,2,99)
-    println( "c: " + c.getClass + ": " + c ) // serialization ok
-    println( "d: " + c.getClass + ": " + d ) // clone ok (must differ from c)
-
-    val e = a.view.take(4).force // fail - returns HashSet instead of DoubleLinkedHashSet
-    println( "e: " + e.getClass + ": " + e )
-
-    val f = a.map( _+1 ) // fail - returns HashSet instead of DoubleLinkedHashSet
-    println( "f: " + f.getClass + ": " + f )
-  }
-}
-
-/*
-  a: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 50, 2, 60, 3, 70)
-  b: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2, 3)
-  c: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 50, 2, 60, 3, 70)
-  d: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(50, 60, 3)
-  e: class scala.collection.mutable.HashSet: Set(1, 50, 60, 2)
-  f: class scala.collection.mutable.HashSet: Set(71, 3, 61, 51, 4, 2)
-*/
