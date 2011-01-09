@@ -16,25 +16,20 @@ object Main {
     println( "a: " + a.getClass + ": " + a )
 
     val b = a.take(3).filter(_<10)
-    println( "b: " + b.getClass + ": " + b ) // type ok
+    println( "b: " + b.getClass + ": " + b )
 
     val bAOS = new java.io.ByteArrayOutputStream()
     val oOS = new java.io.ObjectOutputStream( bAOS )
     oOS.writeObject( a )
     oOS.close
 
-    new java.io.FileOutputStream( "R:\\a.bin" ){
-      this.write( bAOS.toByteArray )
-      close()
-    }
-
     val bAIS = new java.io.ByteArrayInputStream( bAOS.toByteArray )
     val oIS = new java.io.ObjectInputStream( bAIS )
     val c = oIS.readObject.asInstanceOf[DoubleLinkedHashSet[Int]]
 
     val d = c.clone --= List(1,2,99)
-    println( "c: " + c.getClass + ": " + c ) // serialization ok
-    println( "d: " + c.getClass + ": " + d ) // clone ok (must differ from c)
+    println( "c: " + c.getClass + ": " + c )
+    println( "d: " + c.getClass + ": " + d )
 
     val e = a.view.take(4).force
     println( "e: " + e.getClass + ": " + e )
@@ -45,10 +40,10 @@ object Main {
 }
 
 /*
-  a: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 50, 2, 60, 3, 70)
-  b: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2, 3)
-  c: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 50, 2, 60, 3, 70)
-  d: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(50, 60, 3)
-  e: class scala.collection.mutable.HashSet: Set(1, 50, 60, 2)
-  f: class scala.collection.mutable.HashSet: Set(71, 3, 61, 51, 4, 2)
+a: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2, 50, 4, 60, 3, 98, 99)
+b: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2)
+c: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2, 50, 4, 60, 3, 98, 99)
+d: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(50, 4, 60, 3, 98)
+e: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(1, 2, 50, 4)
+f: class scala.collection.mutable.DoubleLinkedHashSet: RetSet(2, 3, 51, 5, 61, 4, 99, 100)
 */
