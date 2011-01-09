@@ -1,4 +1,3 @@
-/*
 package scala.collection
 package generic
 
@@ -18,4 +17,3 @@ abstract class RetSetFactory[CC[A] <: RetSet[A] with RetSetLike[A, CC[A]]] exten
     def apply() = newBuilder[A]
   }
 }
-*/

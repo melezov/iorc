@@ -207,9 +207,6 @@ class DoubleLinkedHashSet[A] extends Set[A]
     def hasNext = cur ne null
   }
 
-  /** Needs to be retro-fitted to a trait which will provide
-   *  reverse capabilities.
-   */
   def reverseIterator = new Iterator[A] {
     var cur = youngest
     def next = {
@@ -228,9 +225,6 @@ class DoubleLinkedHashSet[A] extends Set[A]
     }
   }
 
-  /** Needs to be retro-fitted to a trait which will provide
-   *  reverse capabilities.
-   */
   def foreachReverse[U](f: A =>  U) {
     var cur = youngest
     while ( cur ne null ){
@@ -253,8 +247,8 @@ class DoubleLinkedHashSet[A] extends Set[A]
   }
 
   /** We unserialize into a temporary DoubleLinkedHashSet, and copy from there.
-   *  This could be optimized to prevent constant resizing of the underlying
-   *  HashTable.
+   *  This could later be optimized to prevent repetitive resizing of the
+   *  underlying HashTable.
    */
   private def readObject(in: java.io.ObjectInputStream) {
     in.defaultReadObject
