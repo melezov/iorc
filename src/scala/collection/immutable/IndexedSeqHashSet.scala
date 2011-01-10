@@ -3,35 +3,38 @@ package immutable
 
 import generic._
 
-object VectorHashSet extends ImmutableSetFactory[VectorHashSet] {
-  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, VectorHashSet[A]] = setCanBuildFrom[A]
-  override def empty[A]: VectorHashSet[A] =
-    new VectorHashSet[A]( Vector.empty, Set.empty )
-  def apply[A]( seq: IndexedSeq[A] ): VectorHashSet[A] =
-    new VectorHashSet( seq, Set.empty ++ seq )
-  def apply[A]( set: Set[A] ): VectorHashSet[A] =
-    new VectorHashSet( Vector.empty ++ set, set )
+object IndexedSeqHashSet extends ImmutableSetFactory[IndexedSeqHashSet] {
+  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, IndexedSeqHashSet[A]] = setCanBuildFrom[A]
+  override def empty[A]: IndexedSeqHashSet[A] =
+    new IndexedSeqHashSet( IndexedSeq.empty, Set.empty )
+  def apply[A]( seq: IndexedSeq[A] ): IndexedSeqHashSet[A] =
+    new IndexedSeqHashSet( seq, Set.empty ++ seq )
+  def apply[A]( set: Set[A] ): IndexedSeqHashSet[A] =
+    new IndexedSeqHashSet( IndexedSeq.empty ++ set, set )
 }
 
 @serializable @SerialVersionUID(0x676487D2A09BC676L)
-class VectorHashSet[A] private (
+class IndexedSeqHashSet[A] private (
     val seq: IndexedSeq[A],
     val set: Set[A] ) extends Set[A]
-                        with GenericSetTemplate[A, VectorHashSet]
-                        with SetLike[A, VectorHashSet[A]]{
-  override def companion: GenericCompanion[VectorHashSet] = VectorHashSet
+                        with GenericSetTemplate[A, IndexedSeqHashSet]
+                        with SetLike[A, IndexedSeqHashSet[A]]{
+  override def companion: GenericCompanion[IndexedSeqHashSet] = IndexedSeqHashSet
   override def stringPrefix = "RetSet"
 
   override def size: Int = seq.size
 
   def contains(elem: A): Boolean =
     set.contains(elem)
-  def + (elem: A): VectorHashSet[A] =
+  def + (elem: A): IndexedSeqHashSet[A] =
     if (contains(elem)) this
-    else new VectorHashSet( seq :+ elem, set + elem )
-  def - (elem: A): VectorHashSet[A] =
+    else new IndexedSeqHashSet( seq :+ elem, set + elem )
+  def - (elem: A): IndexedSeqHashSet[A] =
     if ( !contains(elem)) this
-    else new VectorHashSet( seq.filter(_!=elem), set - elem )
+    else new IndexedSeqHashSet( seq.filter(_!=elem), set - elem )
+
+  override def toSeq: Seq[A] = seq
+  override def toIndexedSeq[B >: A]: immutable.IndexedSeq[B] = seq
 
   def iterator =
     seq.iterator
