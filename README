@@ -1,0 +1,26 @@
+Insertion-order retaining collections for Scala.
+Not to be confused with Ordered collections.
+
+USAGE:
+
+  import scala.collections.RetSet
+  ...
+
+MOTIVATION:
+
+RetCol provides mutable and immutable Set and Map collections in which
+the order in which the ordering remains the same upon additional inserts.
+
+Currently, the Scala library offers some of these functionalities through
+scala.collection.mutable.LinkedHashSet/Map and
+scala.collection.immutable.ListSet/Map collections but these implementations
+do not provide constant time element access.
+
+With RetCol mutable collections it is possible to achieve O(1) insertion,
+retrieval and removal of elements through additional overhead of having
+two underlying collections. It is best suited for smaller collection
+sizes where the price of the additional memory footprint can be leveraged
+against constant time access.
+
+RetCol immutable collections offer dual retrieval options, either through
+an element index or through the underlying Hash collection.
