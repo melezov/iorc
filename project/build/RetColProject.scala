@@ -6,7 +6,9 @@ class RetColProject(info: ProjectInfo) extends DefaultProject(info)
 //  ----------------------------------------------------------------
 
   override def managedStyle = ManagedStyle.Maven
-  val publishTo = Resolver.sftp("Element d.o.o. Maven2 Repository", "element.hr", "/m2")
+
+  val credentials = new java.io.File(Path.userHome / ".ivy2" / "ivy-element.ppk" toString)
+  lazy val publishTo = Resolver.sftp("Element d.o.o. Maven2 Repository", "element.hr", "/ivy") as ("ivy", credentials, "sbtivym2")
 
   override def packageSrcJar = defaultJarPath("-sources.jar")
   val sourceArtifact = Artifact.sources(artifactID)
