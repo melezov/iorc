@@ -1,55 +1,52 @@
 package scala.collection.immutable
 
-@serializable @SerialVersionUID(0x74D4A08461260480L) // scala.collection.immutable.IndexedSeqMap-0
-class IndexedSeqMap[A] private (
-)
+import scala.collection.generic.{ImmutableMapFactory, CanBuildFrom, GenericCompanion}
 
-/*
-import scala.collection.SetLike
-import scala.collection.generic.{ImmutableSetFactory, CanBuildFrom, GenericSetTemplate, GenericCompanion}
-
-object IndexedSeqSet extends ImmutableSetFactory[IndexedSeqSet] {
-  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, IndexedSeqSet[A]] = setCanBuildFrom[A]
-  override def empty[A]: IndexedSeqSet[A] = new IndexedSeqSet(IndexedSeq.empty, Set.empty)
+object IndexedSeqMap extends ImmutableMapFactory[IndexedSeqMap] {
+  implicit def canBuildFrom[A, B]: CanBuildFrom[Coll, (A, B), IndexedSeqMap[A, B]] = new MapCanBuildFrom[A, B]
+  private val Nil = new IndexedSeqMap(IndexedSeq.empty, Map.empty)
+  def empty[A, B]: IndexedSeqMap[A, B] = Nil.asInstanceOf[IndexedSeqMap[A, B]]
 }
 
-class IndexedSeqSet[A] private (
-    val seq: IndexedSeq[A],
-    val set: Set[A]) extends Set[A]
-                        with GenericSetTemplate[A, IndexedSeqSet]
-                        with SetLike[A, IndexedSeqSet[A]]{
-  override def companion: GenericCompanion[IndexedSeqSet] = IndexedSeqSet
-  override def stringPrefix = "RetSet"
+@serializable @SerialVersionUID(0x74D4A08461260480L) // scala.collection.immutable.IndexedSeqMap-0
+class IndexedSeqMap[A, +B] private (
+    val seq: IndexedSeq[(A, B)],
+    val map: Map[A, B]) extends Map[A, B]
+                        with MapLike[A, B, IndexedSeqMap[A, B]]{
+  override def empty = IndexedSeqMap.empty
+  override def stringPrefix = "RetMap"
 
-  override def size: Int = seq.size
+    override def size: Int = seq.size
 
-  def contains(elem: A): Boolean =
-    set.contains(elem)
-  def + (elem: A): IndexedSeqSet[A] =
-    if (contains(elem)) this
-    else new IndexedSeqSet(seq :+ elem, set + elem)
-  def - (elem: A): IndexedSeqSet[A] =
-    if (!contains(elem)) this
-    else new IndexedSeqSet(seq.filter(_!=elem), set - elem)
+  def get(k: A): Option[B] =
+    map.get(k)
 
-  def ++ (seq: IndexedSeq[A]): IndexedSeqSet[A] = {
-   val (newSeq,newSet) = {
-      val lhs = new scala.collection.mutable.LinkedHashSet ++ seq
-      (if (lhs.size == seq.size) seq else lhs.toIndexedSeq, lhs.toSet)
+  def +[B1 >: B] (kv: (A, B1)): IndexedSeqMap[A, B1] = {
+    val newSeq = if (map.contains(kv._1)) {
+// TODO: If kv._2 is referrentialy equal to the result of map(kv._1),
+//       we could return `this` (no update necessary)
+      seq.updated(seq.indexOf(kv._1),kv)
+    } else {
+      seq :+ kv
     }
-    new IndexedSeqSet(newSeq, newSet)
+    val newMap = map + kv
+    new IndexedSeqMap(newSeq, newMap)
   }
 
-  def ++ (set: Set[A]): IndexedSeqSet[A] =
-    new IndexedSeqSet(IndexedSeq.empty ++ set, set)
-
-  override def toSeq: Seq[A] = seq
-  override def toIndexedSeq[B >: A]: IndexedSeq[B] = seq
-  override def toSet[B >: A]: Set[B] = set.asInstanceOf[Set[B]]
+  def -(k: A): IndexedSeqMap[A, B] =
+    map.get(k) match{
+      case Some(x) =>
+        new IndexedSeqMap(seq.filter(_._1!=k), map - k)
+      case None =>
+        this
+    }
 
   def iterator =
     seq.iterator
-  override def foreach[U](f: A => U): Unit =
+  override def foreach[U](f: ((A, B)) => U): Unit =
     seq.foreach(f)
+
+  override def toSeq: Seq[(A, B)] = seq
+  override def toIndexedSeq[C >: (A, B)]: IndexedSeq[C] = seq
+  override def toMap[T, U](implicit ev: (A, B) <:< (T, U)): Map[T, U] = map.asInstanceOf[Map[T, U]]
 }
-*/

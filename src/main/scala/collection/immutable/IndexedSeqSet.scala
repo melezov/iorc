@@ -23,10 +23,10 @@ class IndexedSeqSet[A] private (
     set.contains(elem)
   def + (elem: A): IndexedSeqSet[A] =
     if (contains(elem)) this
-    else new IndexedSeqSet(seq :+ elem, set + elem)
+      else new IndexedSeqSet(seq :+ elem, set + elem)
   def - (elem: A): IndexedSeqSet[A] =
     if (!contains(elem)) this
-    else new IndexedSeqSet(seq.filter(_!=elem), set - elem)
+      else new IndexedSeqSet(seq.filter(_!=elem), set - elem)
 
   def ++ (seq: IndexedSeq[A]): IndexedSeqSet[A] = {
    val (newSeq,newSet) = {
