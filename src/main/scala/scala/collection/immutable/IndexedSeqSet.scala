@@ -10,41 +10,42 @@ object IndexedSeqSet extends ImmutableSetFactory[IndexedSeqSet] {
 
 @serializable @SerialVersionUID(0xAB16FC9E83F88EC7L) // scala.collection.immutable.IndexedSeqSet-0
 class IndexedSeqSet[A] private (
-    val seq: IndexedSeq[A],
-    val set: Set[A]) extends Set[A]
+    val s: IndexedSeq[A],
+    val t: Set[A]) extends Set[A]
                         with GenericSetTemplate[A, IndexedSeqSet]
                         with SetLike[A, IndexedSeqSet[A]]{
+//                        with Serializable{
   override def companion: GenericCompanion[IndexedSeqSet] = IndexedSeqSet
   override def stringPrefix = "RetSet"
 
-  override def size: Int = seq.size
+  override def size: Int = s.size
 
   def contains(elem: A): Boolean =
-    set.contains(elem)
+    t.contains(elem)
   def + (elem: A): IndexedSeqSet[A] =
     if (contains(elem)) this
-      else new IndexedSeqSet(seq :+ elem, set + elem)
+      else new IndexedSeqSet(s :+ elem, t + elem)
   def - (elem: A): IndexedSeqSet[A] =
     if (!contains(elem)) this
-      else new IndexedSeqSet(seq.filter(_!=elem), set - elem)
+      else new IndexedSeqSet(s.filter(_!=elem), t - elem)
 
-  def ++ (seq: IndexedSeq[A]): IndexedSeqSet[A] = {
+  def ++ (s: IndexedSeq[A]): IndexedSeqSet[A] = {
    val (newSeq,newSet) = {
-      val lhs = new scala.collection.mutable.LinkedHashSet ++ seq
-      (if (lhs.size == seq.size) seq else lhs.toIndexedSeq, lhs.toSet)
+      val lhs = new scala.collection.mutable.LinkedHashSet ++ s
+      (if (lhs.size == s.size) s else lhs.toIndexedSeq, lhs.toSet)
     }
     new IndexedSeqSet(newSeq, newSet)
   }
 
-  def ++ (set: Set[A]): IndexedSeqSet[A] =
-    new IndexedSeqSet(IndexedSeq.empty ++ set, set)
+  def ++ (t: Set[A]): IndexedSeqSet[A] =
+    new IndexedSeqSet(IndexedSeq.empty ++ t, t)
 
-  override def toSeq: Seq[A] = seq
-  override def toIndexedSeq[B >: A]: IndexedSeq[B] = seq
-  override def toSet[B >: A]: Set[B] = set.asInstanceOf[Set[B]]
+  override def toSeq: Seq[A] = s
+  override def toIndexedSeq[B >: A]: IndexedSeq[B] = s
+  override def toSet[B >: A]: Set[B] = t.asInstanceOf[Set[B]]
 
   def iterator =
-    seq.iterator
+    s.iterator
   override def foreach[U](f: A => U): Unit =
-    seq.foreach(f)
+    s.foreach(f)
 }

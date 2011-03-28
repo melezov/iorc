@@ -10,43 +10,44 @@ object IndexedSeqMap extends ImmutableMapFactory[IndexedSeqMap] {
 
 @serializable @SerialVersionUID(0x74D4A08461260480L) // scala.collection.immutable.IndexedSeqMap-0
 class IndexedSeqMap[A, +B] private (
-    val seq: IndexedSeq[(A, B)],
-    val map: Map[A, B]) extends Map[A, B]
+    val s: IndexedSeq[(A, B)],
+    val m: Map[A, B]) extends Map[A, B]
                         with MapLike[A, B, IndexedSeqMap[A, B]]{
+//                        with Serializable{
   override def empty = IndexedSeqMap.empty
   override def stringPrefix = "RetMap"
 
-    override def size: Int = seq.size
+    override def size: Int = s.size
 
   def get(k: A): Option[B] =
-    map.get(k)
+    m.get(k)
 
   def +[B1 >: B] (kv: (A, B1)): IndexedSeqMap[A, B1] = {
-    val newSeq = if (map.contains(kv._1)) {
-// TODO: If kv._2 is referrentialy equal to the result of map(kv._1),
+    val newSeq = if (m.contains(kv._1)) {
+// TODO: If kv._2 is referrentialy equal to the result of m(kv._1),
 //       we could return `this` (no update necessary)
-      seq.updated(seq.indexOf(kv._1),kv)
+      s.updated(s.indexOf(kv._1),kv)
     } else {
-      seq :+ kv
+      s :+ kv
     }
-    val newMap = map + kv
+    val newMap = m + kv
     new IndexedSeqMap(newSeq, newMap)
   }
 
   def -(k: A): IndexedSeqMap[A, B] =
-    map.get(k) match{
+    m.get(k) match{
       case Some(x) =>
-        new IndexedSeqMap(seq.filter(_._1!=k), map - k)
+        new IndexedSeqMap(s.filter(_._1!=k), m - k)
       case None =>
         this
     }
 
   def iterator =
-    seq.iterator
+    s.iterator
   override def foreach[U](f: ((A, B)) => U): Unit =
-    seq.foreach(f)
+    s.foreach(f)
 
-  override def toSeq: Seq[(A, B)] = seq
-  override def toIndexedSeq[C >: (A, B)]: IndexedSeq[C] = seq
-  override def toMap[T, U](implicit ev: (A, B) <:< (T, U)): Map[T, U] = map.asInstanceOf[Map[T, U]]
+  override def toSeq: Seq[(A, B)] = s
+  override def toIndexedSeq[C >: (A, B)]: IndexedSeq[C] = s
+  override def toMap[T, U](implicit ev: (A, B) <:< (T, U)): Map[T, U] = m.asInstanceOf[Map[T, U]]
 }
