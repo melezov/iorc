@@ -1,15 +1,15 @@
 /*
-package scala.collection
-package immutable
+package scala.collection.immutable
 
-import generic._
-import mutable.Builder
+import scala.collection.generic._
+import scala.collection.mutable.Builder
 
 trait RetSet[A] extends Set[A]
-                   with scala.collection.RetSet[A]
-                   with RetSetLike[A, RetSet[A]] {
+                with scala.collection.RetSet[A]
+                with GenericSetTemplate[A, RetSet]
+                with scala.collection.RetSetLike[A, RetSet[A]]{
   override def empty: RetSet[A] = RetSet.empty[A]
-  override def companion: GenericCompanion[RetSet] = RetSet
+  override def companion: scala.collection.generic.GenericCompanion[RetSet] = RetSet
 }
 
 object RetSet extends ImmutableRetSetFactory[RetSet] {
@@ -90,8 +90,7 @@ object RetSet extends ImmutableRetSetFactory[RetSet] {
       elem == elem1 || elem == elem2 || elem == elem3 || elem == elem4
     def + (elem: A): RetSet[A] =
       if (contains(elem)) this
-      // FIXME: Can't connect to VectorHashSet, due to it not being a RetSet
-      else this // VectorHashSet[A]( Vector(elem1, elem2, elem3, elem4, elem) )
+      else this // IndexedSeqSet(elem1, elem2, elem3, elem4, elem)
     def - (elem: A): RetSet[A] =
       if (elem == elem1) new RetSet3(elem2, elem3, elem4)
       else if (elem == elem2) new RetSet3(elem1, elem3, elem4)

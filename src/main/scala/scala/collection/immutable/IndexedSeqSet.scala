@@ -4,17 +4,17 @@ import scala.collection.SetLike
 import scala.collection.generic.{ImmutableSetFactory, CanBuildFrom, GenericSetTemplate, GenericCompanion}
 
 object IndexedSeqSet extends ImmutableSetFactory[IndexedSeqSet] {
-  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, IndexedSeqSet[A]] = setCanBuildFrom[A]
+  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, IndexedSeqSet[A]] = setCanBuildFrom
   override def empty[A]: IndexedSeqSet[A] = new IndexedSeqSet(IndexedSeq.empty, Set.empty)
 }
 
-@serializable @SerialVersionUID(0xAB16FC9E83F88EC7L) // scala.collection.immutable.IndexedSeqSet-0
+@SerialVersionUID(0xAB16FC9E83F88EC7L) // sha1("scala.collection.immutable.IndexedSeqSet-0").take(8)
 class IndexedSeqSet[A] private (
     val s: IndexedSeq[A],
     val t: Set[A]) extends Set[A]
                         with GenericSetTemplate[A, IndexedSeqSet]
-                        with SetLike[A, IndexedSeqSet[A]]{
-//                        with Serializable{
+                        with scala.collection.SetLike[A, IndexedSeqSet[A]]
+                        with Serializable{
   override def companion: GenericCompanion[IndexedSeqSet] = IndexedSeqSet
   override def stringPrefix = "RetSet"
 

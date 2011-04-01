@@ -1,6 +1,8 @@
 /*
-package scala.collection
-package generic
+package scala.collection.generic
 
-abstract class ImmutableRetSetFactory[CC[A] <: immutable.RetSet[A] with RetSetLike[A, CC[A]]] extends RetSetFactory[CC]
+import scala.collection.immutable.RetSet
+import scala.collection.RetSetLike
+
+abstract class ImmutableRetSetFactory[CC[A] <: RetSet[A] with RetSetLike[A, CC[A]]] extends RetSetFactory[CC]
 */

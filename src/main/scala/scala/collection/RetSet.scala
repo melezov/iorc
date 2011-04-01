@@ -1,6 +1,7 @@
 /*
 package scala.collection
-import generic._
+
+import scala.collection.generic.{CanBuildFrom, RetSetFactory}
 
 trait RetSet[A] extends Set[A] with RetSetLike[A, RetSet[A]] {
   override def empty: RetSet[A] = RetSet.empty[A]

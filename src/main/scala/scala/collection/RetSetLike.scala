@@ -1,6 +1,7 @@
 /*
 package scala.collection
-import generic._
+
+import scala.collection.generic.Retaining
 
 trait RetSetLike[A, +This <: RetSet[A] with RetSetLike[A, This]] extends Retaining[A] with SetLike[A, This] {
 self =>
@@ -9,6 +10,5 @@ self =>
 
   override def youngestKey: A = head
   override def oldestKey: A = last
-
 }
 */

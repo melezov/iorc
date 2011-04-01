@@ -1,8 +1,9 @@
+/*
 package scala.collection
 package mutable
 
 import generic._
-/*
+
 object DoubleLinkedHashMap extends MutableMapFactory[DoubleLinkedHashMap] {
   implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, DoubleLinkedHashMap[A]] = MapCanBuildFrom[A]
   override def empty[A]: DoubleLinkedHashMap[A] = new DoubleLinkedHashMap[A]
@@ -13,11 +14,12 @@ final class DoubleLinkedEntry[A]( val key: A ) extends HashEntry[A, DoubleLinked
   var younger: DoubleLinkedEntry[A] = null
 }
 
-@serializable @SerialVersionUID(0xC7AD20ED79CE137AL) // scala.collection.mutable.DoubleLinkedHashMap-0
+@SerialVersionUID(0xC7AD20ED79CE137AL) // sha1("scala.collection.mutable.DoubleLinkedHashMap-0").take(8)
 class DoubleLinkedHashMap[A] extends Map[A]
                              with GenericMapTemplate[A, DoubleLinkedHashMap]
                              with MapLike[A, DoubleLinkedHashMap[A]]
-                             with HashTable[A]{
+                             with HashTable[A]
+                             wiht Serializable{
   override def companion: GenericCompanion[DoubleLinkedHashMap] = DoubleLinkedHashMap
 
   type Entry = DoubleLinkedEntry[A]

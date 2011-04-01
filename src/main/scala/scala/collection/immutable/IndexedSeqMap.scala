@@ -8,12 +8,12 @@ object IndexedSeqMap extends ImmutableMapFactory[IndexedSeqMap] {
   def empty[A, B]: IndexedSeqMap[A, B] = Nil.asInstanceOf[IndexedSeqMap[A, B]]
 }
 
-@serializable @SerialVersionUID(0x74D4A08461260480L) // scala.collection.immutable.IndexedSeqMap-0
+@SerialVersionUID(0x74D4A08461260480L)  // sha1("scala.collection.immutable.IndexedSeqMap-0").take(8)
 class IndexedSeqMap[A, +B] private (
     val s: IndexedSeq[(A, B)],
     val m: Map[A, B]) extends Map[A, B]
-                        with MapLike[A, B, IndexedSeqMap[A, B]]{
-//                        with Serializable{
+                        with MapLike[A, B, IndexedSeqMap[A, B]]
+                        with Serializable{
   override def empty = IndexedSeqMap.empty
   override def stringPrefix = "RetMap"
 
@@ -42,10 +42,23 @@ class IndexedSeqMap[A, +B] private (
         this
     }
 
+  def ++[B1 >: B] (s: IndexedSeq[(A, B1)]): IndexedSeqMap[A, B1] = {
+   val (newSeq, newMap) = {
+      val lhm = new scala.collection.mutable.LinkedHashMap ++ s
+      (if (lhm.size == s.size) s else lhm.toIndexedSeq, lhm.toMap)
+    }
+    new IndexedSeqMap(newSeq, newMap)
+  }
+
+  def ++[B1, B] (m: Map[A, B1]): IndexedSeqMap[A, B1] =
+    new IndexedSeqMap(m.toIndexedSeq, m)
+
   def iterator =
     s.iterator
   override def foreach[U](f: ((A, B)) => U): Unit =
     s.foreach(f)
+
+  override def keySet: IndexedSeqSet[A] = IndexedSeqSet.empty ++ s.map(_._1)
 
   override def toSeq: Seq[(A, B)] = s
   override def toIndexedSeq[C >: (A, B)]: IndexedSeq[C] = s

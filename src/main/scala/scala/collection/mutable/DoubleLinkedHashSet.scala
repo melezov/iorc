@@ -1,3 +1,4 @@
+/*
 package scala.collection
 package mutable
 
@@ -13,11 +14,12 @@ final class DoubleLinkedEntry[A]( val key: A ) extends HashEntry[A, DoubleLinked
   var younger: DoubleLinkedEntry[A] = null
 }
 
-@serializable @SerialVersionUID(0x27FF0B4B35812092L) // scala.collection.mutable.DoubleLinkedHashSet-0
+@SerialVersionUID(0x27FF0B4B35812092L)  // sha1("scala.collection.mutable.DoubleLinkedHashSet-0").take(8)
 class DoubleLinkedHashSet[A] extends Set[A]
                              with GenericSetTemplate[A, DoubleLinkedHashSet]
                              with SetLike[A, DoubleLinkedHashSet[A]]
-                             with HashTable[A]{
+                             with HashTable[A]
+                             with Serializable{
   override def companion: GenericCompanion[DoubleLinkedHashSet] = DoubleLinkedHashSet
 
   type Entry = DoubleLinkedEntry[A]
@@ -265,3 +267,4 @@ class DoubleLinkedHashSet[A] extends Set[A]
     table = bld.table
   }
 }
+*/
