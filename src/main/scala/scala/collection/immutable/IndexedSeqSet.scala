@@ -54,19 +54,39 @@ class IndexedSeqSet[A] private (
         /* Only some of the new elements need to be added.          */
         /* This means that either we already contained some of the  */
         /* elements, or that the provided IndexedSeq had duplicates */
-        val deltaSet = newSet -- _set
-        new IndexedSeqSet(_seq ++ deltaSet, newSet)
+        val seqDelta = that.distinct
+        new IndexedSeqSet(_seq ++ seqDelta, newSet)
     }
   }
 
 
-  def ++ (that: Set[A]): IndexedSeqSet[A] =
-    if (isEmpty) {
-      new IndexedSeqSet(that.toIndexedSeq, that)
+  def ++ (that: Set[A]): IndexedSeqSet[A] = {
+    val minLen = _set.size
+    val empLen = that.size
+    val maxLen = minLen + empLen
+
+    val newSet = _set ++ that
+    newSet.size match {
+      case `minLen` =>
+         /* All elements are already contained, noop */
+        this
+
+      case `empLen` =>
+        /* We were empty, so reuse the provided Set */
+        new IndexedSeqSet(that.toIndexedSeq, that)
+
+      case `maxLen` =>
+        /* We are not empty and all elements need to be added */
+        new IndexedSeqSet(_seq ++ that, newSet)
+
+      case _ =>
+        /* Only some of the new elements need to be added.          */
+        /* This means that either we already contained some of the  */
+        /* elements, or that the provided IndexedSeq had duplicates */
+        val setDelta = that.toIndexedSeq.filterNot(_set)
+        new IndexedSeqSet(_seq ++ setDelta, newSet)
     }
-    else{
-      super.++(that)
-    }
+  }
 
   override def toSeq: Seq[A] = _seq
   override def toIndexedSeq[B >: A]: IndexedSeq[B] = _seq
