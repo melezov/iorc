@@ -31,5 +31,5 @@ class RetColProject(info: ProjectInfo) extends DefaultProject(info)
 //  ################################################################
 
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
-  val scalatest = "org.scalatest" % "scalatest" % "1.4-SNAPSHOT" % "test"
+  val scalatest = "org.scalatest" % "scalatest" % "1.3" % "test"
 }

@@ -8,13 +8,13 @@ object IndexedSeqSet extends ImmutableSetFactory[IndexedSeqSet] {
   override def empty[A]: IndexedSeqSet[A] = new IndexedSeqSet(IndexedSeq.empty, Set.empty)
 }
 
+@serializable
 @SerialVersionUID(0xAB16FC9E83F88EC7L) // sha1("scala.collection.immutable.IndexedSeqSet-0").take(8)
 class IndexedSeqSet[A] private (
     private val _seq: IndexedSeq[A],
     private val _set: Set[A]) extends Set[A]
                         with GenericSetTemplate[A, IndexedSeqSet]
-                        with scala.collection.SetLike[A, IndexedSeqSet[A]]
-                        with Serializable{
+                        with scala.collection.SetLike[A, IndexedSeqSet[A]]{
   override def companion: GenericCompanion[IndexedSeqSet] = IndexedSeqSet
   override def stringPrefix = "RetSet"
 

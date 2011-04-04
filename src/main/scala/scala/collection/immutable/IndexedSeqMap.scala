@@ -8,12 +8,12 @@ object IndexedSeqMap extends ImmutableMapFactory[IndexedSeqMap] {
   def empty[A, B]: IndexedSeqMap[A, B] = Nil.asInstanceOf[IndexedSeqMap[A, B]]
 }
 
+@serializable
 @SerialVersionUID(0x74D4A08461260480L)  // sha1("scala.collection.immutable.IndexedSeqMap-0").take(8)
 class IndexedSeqMap[A, +B] private (
     private val _seq: IndexedSeq[(A, B)],
     private val _map: Map[A, B]) extends Map[A, B]
-                        with MapLike[A, B, IndexedSeqMap[A, B]]
-                        with Serializable{
+                        with MapLike[A, B, IndexedSeqMap[A, B]]{
   override def empty = IndexedSeqMap.empty
   override def stringPrefix = "RetMap"
 
