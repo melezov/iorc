@@ -71,6 +71,19 @@ class IndexedSeqSetSpec extends FeatureSpec with GivenWhenThen {
         assert(vec.forall(iSS.toSet))
       }
     }
+
+    info("When IndexedSeqSet is constructed from another IndexedSeqSet")
+    info("it should not instantiate a new collection")
+
+    scenario("IndexedSeqSet is constructed with another IndexedSeqSet") {
+      given("an empty IndexedSeqSet")
+      val iSSempty = IndexedSeqSet.empty[Int]
+      and("when appending another IndexedSeqSet")
+      val iSS = IndexedSeqSet(1, 2, 3)
+      val iSSnew = iSSempty ++ iSS
+      then("the new IndexedSeqSet must be the same as the old one")
+      assert(iSS eq iSSnew)
+    }
   }
 
   feature("IndexedSeqSet must return itself on a noop") {

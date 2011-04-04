@@ -31,6 +31,15 @@ class IndexedSeqSet[A] private (
     if (!contains(elem)) this
       else new IndexedSeqSet(_seq.filter(_!=elem), _set - elem)
 
+  def ++ (that: IndexedSeqSet[A]): IndexedSeqSet[A] = {
+    if (isEmpty) {
+      that
+    }
+    else{
+      super.++(that)
+    }
+  }
+
   def ++ (that: IndexedSeq[A]): IndexedSeqSet[A] = {
     val minLen = _set.size
     val empLen = that.size

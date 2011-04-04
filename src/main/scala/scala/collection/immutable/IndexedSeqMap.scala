@@ -29,7 +29,8 @@ class IndexedSeqMap[A, +B] private (
 //      case Some(x: AnyRef) if x eq kv._2 =>
 //        this
       case Some(x) =>
-        val newSeq = _seq.updated(_seq.indexOf(kv._1), kv)
+        val pos = _seq.indexWhere(_._1==kv._1)
+        val newSeq = _seq.updated(pos, kv)
         new IndexedSeqMap(newSeq, _map + kv)
       case None =>
         new IndexedSeqMap(_seq :+ kv, _map + kv)
@@ -41,6 +42,14 @@ class IndexedSeqMap[A, +B] private (
         new IndexedSeqMap(_seq.filter(_._1!=k), _map - k)
       case None =>
         this
+    }
+
+  def ++[B1 >: B] (that: IndexedSeqMap[A, B1]): IndexedSeqMap[A, B1] =
+    if (isEmpty) {
+      that.asInstanceOf[IndexedSeqMap[A, B1]]
+    }
+    else {
+      super.++(that)
     }
 
   def ++[B1 >: B] (that: IndexedSeq[(A, B1)]): IndexedSeqMap[A, B1] =
