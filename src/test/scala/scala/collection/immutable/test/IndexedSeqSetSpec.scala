@@ -126,12 +126,22 @@ class IndexedSeqSetSpec extends FeatureSpec with GivenWhenThen {
     info("it should not instatiate a new object, but return itself")
 
     scenario("An empty collection is being added to the IndexedSeqSet") {
-      given("an IndexedSeqSet containing some elements")
-      val iSS = IndexedSeqSet(1, 2, 3)
-      when("adding an empty collection")
-      val iSSnew = iSS ++ BitSet.empty
-      then("a new IndexedSeqSet must not be created")
-      assert(iSS eq iSSnew)
+      {
+        given("an empty IndexedSeqSet")
+        val iSS = IndexedSeqSet.empty[Long]
+        when("adding an empty collection")
+        val iSSnew = iSS ++ Nil
+        then("a new IndexedSeqSet must not be created")
+        assert(iSS eq iSSnew)
+      }
+      {
+        given("an IndexedSeqSet containing some elements")
+        val iSS = IndexedSeqSet(1, 2, 3)
+        when("adding an empty collection")
+        val iSSnew = iSS ++ BitSet.empty
+        then("a new IndexedSeqSet must not be created")
+        assert(iSS eq iSSnew)
+      }
     }
 
     info("When removing an empty collection")
@@ -142,7 +152,7 @@ class IndexedSeqSetSpec extends FeatureSpec with GivenWhenThen {
         given("an empty IndexedSeqSet")
         val iSS = IndexedSeqSet.empty[Double]
         when("removing any collection")
-        val iSSnew = iSS -- ListSet(1., 2.)
+        val iSSnew = iSS -- Nil
         then("a new IndexedSeqSet must not be created")
         assert(iSS eq iSSnew)
       }

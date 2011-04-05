@@ -32,7 +32,10 @@ class IndexedSeqSet[A] private (
       else new IndexedSeqSet(_seq.filter(_!=elem), _set - elem)
 
   def ++ (that: IndexedSeqSet[A]): IndexedSeqSet[A] = {
-    if (isEmpty) {
+    if (that.isEmpty) {
+      this
+    }
+    else if (isEmpty) {
       that
     }
     else{
