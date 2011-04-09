@@ -71,7 +71,6 @@ class IndexedSeqSet[A] private (
     }
   }
 
-
   def ++ (that: Set[A]): IndexedSeqSet[A] = {
     val minLen = _set.size
     val empLen = that.size
