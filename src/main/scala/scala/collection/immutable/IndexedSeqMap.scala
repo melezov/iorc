@@ -13,7 +13,7 @@ class IndexedSeqMap[A, +B] private (
     private val _seq: IndexedSeq[(A, B)],
     private val _map: Map[A, B]) extends Map[A, B]
                         with MapLike[A, B, IndexedSeqMap[A, B]]
-                        with Serializable{
+                        with Serializable {
   override def empty = IndexedSeqMap.empty
   override def stringPrefix = "RetMap"
 
@@ -24,10 +24,8 @@ class IndexedSeqMap[A, +B] private (
 
   def +[B1 >: B] (kv: (A, B1)): IndexedSeqMap[A, B1] =
     _map.get(kv._1) match{
-/*      If x is reference equal to kv._2, we can return this. */
-//      TODO: Solve type wizardry puzzle below.
-//      case Some(x: AnyRef) if x eq kv._2 =>
-//        this
+      case Some(x: AnyRef) if kv._2.asInstanceOf[AnyRef] eq x =>
+        this
       case Some(x) =>
         val pos = _seq.indexWhere(_._1==kv._1)
         val newSeq = _seq.updated(pos, kv)
@@ -45,7 +43,10 @@ class IndexedSeqMap[A, +B] private (
     }
 
   def ++[B1 >: B] (that: IndexedSeqMap[A, B1]): IndexedSeqMap[A, B1] =
-    if (isEmpty) {
+    if (that.isEmpty) {
+      this
+    }
+    else if (isEmpty) {
       that.asInstanceOf[IndexedSeqMap[A, B1]]
     }
     else {
@@ -53,7 +54,10 @@ class IndexedSeqMap[A, +B] private (
     }
 
   def ++[B1 >: B] (that: IndexedSeq[(A, B1)]): IndexedSeqMap[A, B1] =
-    if (isEmpty) {
+    if (that.isEmpty) {
+      this
+    }
+    else if (isEmpty) {
       val newMap = that.toMap
       if (that.size==newMap.size) {
         new IndexedSeqMap(that, newMap)
@@ -67,7 +71,10 @@ class IndexedSeqMap[A, +B] private (
     }
 
   def ++[B1 >: B] (that: Map[A, B1]): IndexedSeqMap[A, B1] =
-    if (isEmpty) {
+    if (that.isEmpty) {
+      this
+    }
+    else if (isEmpty) {
       new IndexedSeqMap(that.toIndexedSeq, that)
     }
     else{

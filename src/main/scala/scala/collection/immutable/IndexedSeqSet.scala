@@ -14,7 +14,7 @@ class IndexedSeqSet[A] private (
     private val _set: Set[A]) extends Set[A]
                         with GenericSetTemplate[A, IndexedSeqSet]
                         with scala.collection.SetLike[A, IndexedSeqSet[A]]
-                        with Serializable{
+                        with Serializable {
   override def companion: GenericCompanion[IndexedSeqSet] = IndexedSeqSet
   override def stringPrefix = "RetSet"
 
@@ -32,7 +32,10 @@ class IndexedSeqSet[A] private (
       else new IndexedSeqSet(_seq.filter(_!=elem), _set - elem)
 
   def ++ (that: IndexedSeqSet[A]): IndexedSeqSet[A] = {
-    if (isEmpty) {
+    if (that.isEmpty) {
+      this
+    }
+    else if (isEmpty) {
       that
     }
     else{
@@ -67,7 +70,6 @@ class IndexedSeqSet[A] private (
         new IndexedSeqSet(_seq ++ seqDelta, newSet)
     }
   }
-
 
   def ++ (that: Set[A]): IndexedSeqSet[A] = {
     val minLen = _set.size
