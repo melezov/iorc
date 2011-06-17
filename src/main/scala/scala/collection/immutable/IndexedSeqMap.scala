@@ -12,8 +12,8 @@ object IndexedSeqMap extends ImmutableMapFactory[IndexedSeqMap] {
 class IndexedSeqMap[A, +B] private (
     private val _seq: IndexedSeq[(A, B)],
     private val _map: Map[A, B]) extends Map[A, B]
-                        with MapLike[A, B, IndexedSeqMap[A, B]]
-                        with Serializable {
+                        with MapLike[A, B, IndexedSeqMap[A, B]] {
+//                        with Serializable {
   override def empty = IndexedSeqMap.empty
   override def stringPrefix = "RetMap"
 

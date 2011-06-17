@@ -13,8 +13,8 @@ class IndexedSeqSet[A] private (
     private val _seq: IndexedSeq[A],
     private val _set: Set[A]) extends Set[A]
                         with GenericSetTemplate[A, IndexedSeqSet]
-                        with scala.collection.SetLike[A, IndexedSeqSet[A]]
-                        with Serializable {
+                        with scala.collection.SetLike[A, IndexedSeqSet[A]] {
+//                        with Serializable {
   override def companion: GenericCompanion[IndexedSeqSet] = IndexedSeqSet
   override def stringPrefix = "RetSet"
 
